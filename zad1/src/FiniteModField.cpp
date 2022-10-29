@@ -52,25 +52,25 @@ FiniteModField FiniteModField::operator /(const FiniteModField& number) const{
     }
     else if (this->value == 0) {return FiniteModField(0, this->base);}
 
-    //Compute inverse of checkedNumber->value: https://cdn.intechopen.com/pdfs/29704/InTech-Division_and_inversion_over_finite_fields.pdf
-    ull y1 = 1;
-    ull y2 = 0;
+    //https://cdn.intechopen.com/pdfs/29704/InTech-Division_and_inversion_over_finite_fields.pdf
+    
+    ull y1 = 0;
+    ull y2 = 1;
     ull a = checkedNumber.value;
-    ull p = checkedNumber.base;
-    ull prevP = p;
+    ull P = checkedNumber.base;
 
     while (a != 1) {
-        ull q = p / a;
-        ull temp = a;
-        a = (FiniteModField(p, prevP) - FiniteModField(q * a, prevP)).value;
-        p = temp;
-        temp = y2;
-        y2 = y1;
-        y1 = (FiniteModField(temp, prevP) - FiniteModField(q * y1, prevP)).value;
-        prevP = p;
+        ull q = P / a;
+        ull newA = P - ((q * a) % P); //FiniteModField(q, P) * FiniteModField(a, P)
+        ull newP = a;
+        ull newY2 = y1;
+        
+        y1 = y2 % P > q ? (y2 % P) - q : P - (q - (y2 % P)); //(FiniteModField(y2, P) - (FiniteModField(q, P) * FiniteModField(y1, P))).value;
+        P = newP;
+        y2 = newY2;
+        a = newA;
     }
-    std::cout<<y1<<std::endl;
-    return FiniteModField(y1) * *this;  
+    return FiniteModField(y1, checkedNumber.base) * (*this);
 }
 
 bool FiniteModField::operator ==(const FiniteModField& number) const{
@@ -80,7 +80,7 @@ bool FiniteModField::operator ==(const FiniteModField& number) const{
 FiniteModField& FiniteModField::operator += (const FiniteModField& number) {*this = number + *this; return *this;}
 FiniteModField& FiniteModField::operator -= (const FiniteModField& number) {*this = number - *this; return *this;}
 FiniteModField& FiniteModField::operator *= (const FiniteModField& number) {*this = number * *this; return *this;}
-FiniteModField& FiniteModField::operator /= (const FiniteModField& number) {*this = number / *this; return *this;}
+FiniteModField& FiniteModField::operator /= (const FiniteModField& number) {*this = *this / number; return *this;}
 
 std::ostream& MyField::operator << (std::ostream& stream, const FiniteModField& number) {
     return (stream << (std::to_string(number.value) + " mod " + std::to_string(number.base)));
@@ -105,12 +105,10 @@ bool FiniteModField::isPrime(const ull number) {
     return true;
 }
 
-FiniteModField::FiniteModField(ull value, ull base) {
+FiniteModField::FiniteModField(ull value, ull base) : value{value}, base{base} {
     if (!isPrime(base)) {throw std::domain_error("Base is not a prime number");}
     ull temp = base * base;
     if (temp / base != base) {throw std::domain_error("Base must not exceed sqrt (MAX_ULL)");}
-    this->value = value;
-    this->base = base;
 }
 
 FiniteModField::FiniteModField(unsigned long long val) : value{val}, base{0} {}
@@ -121,6 +119,7 @@ FiniteModField& FiniteModField::operator ++ () noexcept {
     this->value = (this->value + 1) % this->base;
     return *this;
 }
+
 FiniteModField& FiniteModField::operator -- () noexcept {
     if (this->value > 0) {this->value--;}
     else {this->value = this->base - 1;}

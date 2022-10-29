@@ -16,7 +16,6 @@ namespace MyField {
         public:
             FiniteModField(unsigned long long value, unsigned long long base);
             FiniteModField() = delete;
-            FiniteModField(const FiniteModField& number) = default;
             FiniteModField(unsigned long long number);
             explicit FiniteModField(signed long long number);
             FiniteModField operator + (const FiniteModField& number) const;
@@ -31,10 +30,12 @@ namespace MyField {
             FiniteModField& operator *= (const FiniteModField& number);
             FiniteModField& operator /= (const FiniteModField& number);
             bool operator == (const FiniteModField& number) const;
-            inline unsigned long long returnBase() const noexcept {return base;};
+            inline unsigned long long returnBase() const noexcept {return base;}
+            inline unsigned long long returnValue() const noexcept {return value;}
             friend std::ostream& operator << (std::ostream& stream, const FiniteModField& number);
             friend std::istream& operator >> (std::istream& stream, FiniteModField& number);
         private:
+             
             unsigned long long value = 0;
             /**
              * Base = 0 means that this number is "implicit natural"
