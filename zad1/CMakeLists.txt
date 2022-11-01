@@ -5,7 +5,7 @@ include_directories(inc)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
-set(MY_COMPILE_FLAGS -Wall -Wextra -pedantic -ansi -g)
+set(MY_COMPILE_FLAGS -Wall -Wextra -pedantic -ansi)
 
 #add_library(MyField STATIC inc/Field.hpp inc/FiniteModField.hpp src/FiniteModField.cpp)
 #target_compile_options(MyField PRIVATE ${MY_COMPILE_FLAGS})
